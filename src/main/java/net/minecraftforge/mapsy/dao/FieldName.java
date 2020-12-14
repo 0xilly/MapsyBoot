@@ -19,6 +19,9 @@ public class FieldName {
     @ManyToOne
     private ClassName owner;
 
+    @ManyToMany
+    private List<FieldChange> history;
+
     @Column (nullable = false)
     private String obf;
 
@@ -34,16 +37,19 @@ public class FieldName {
     public long getId() { return id; }
     public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
     public ClassName getOwner() { return owner; }
+    public List<FieldChange> getHistory() { return history; }
     public String getObf() { return obf; }
     public String getMojang() { return mojang; }
     public String getSrg() { return srg; }
     public String getMcp() { return mcp; }
     public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setOwner(ClassName owner) { this.owner = owner; }
+    public void setHistory(List<FieldChange> history) { this.history = history; }
     public void setObf(String obf) { this.obf = obf; }
     public void setMojang(String mojang) { this.mojang = mojang; }
     public void setSrg(String srg) { this.srg = srg; }
     public void setMcp(String mcp) { this.mcp = mcp; }
+    public void addHistory(FieldChange history) { this.history.add(history); }
     //@formatter:on
 
 }

@@ -20,6 +20,9 @@ public class MethodName {
     @ManyToMany
     private List<ClassName> owners = new ArrayList<>();
 
+    @ManyToMany
+    private List<MethodChange> history = new ArrayList<>();
+
     @Column (nullable = false)
     private String obf;
 
@@ -44,6 +47,7 @@ public class MethodName {
     public long getId() { return id; }
     public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
     public List<ClassName> getOwners() { return owners; }
+    public List<MethodChange> getHistory() { return history; }
     public String getObf() { return obf; }
     public String getObfDesc() { return obfDesc; }
     public String getMojang() { return mojang; }
@@ -52,6 +56,7 @@ public class MethodName {
     public String getMcp() { return mcp; }
     public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setOwners(List<ClassName> owners) { this.owners = owners; }
+    public void setHistory(List<MethodChange> history) { this.history = history; }
     public void setObf(String obf) { this.obf = obf; }
     public void setObfDesc(String obfDesc) { this.obfDesc = obfDesc; }
     public void setMojang(String mojang) { this.mojang = mojang; }
@@ -59,5 +64,6 @@ public class MethodName {
     public void setDesc(String desc) { this.desc = desc; }
     public void setMcp(String mcp) { this.mcp = mcp; }
     public void addOwner(ClassName owner) { owners.add(owner); }
+    public void addHistory(MethodChange history) { this.history.add(history); }
     //@formatter:on
 }
