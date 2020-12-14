@@ -1,3 +1,4 @@
+/*
 package net.minecraftforge.mapsy.service.mapping;
 
 import net.minecraftforge.mapsy.dao.MethodMapping;
@@ -33,3 +34,4 @@ public class MethodMappingService implements IMethodMappingService{
         return service.findAll();
     }
 }
+*/

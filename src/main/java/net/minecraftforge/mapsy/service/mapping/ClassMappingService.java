@@ -1,3 +1,4 @@
+/*
 package net.minecraftforge.mapsy.service.mapping;
 
 import net.minecraftforge.mapsy.dao.ClassMapping;
@@ -33,3 +34,4 @@ public class ClassMappingService implements IClassMappingService {
         return service.findAll();
     }
 }
+*/
