@@ -1,46 +1,63 @@
 package net.minecraftforge.mapsy.dao;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
-@Entity (name = "user")
+import javax.persistence.*;
+
+@Entity
 public class User {
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(nullable = false)
+    @Column
     private String name;
 
-    @Column(nullable = false)
-    private long discordId;
+    @Column
+    private String discordId;
 
-    @Column(nullable = false)
+    @Column
     private String role;
 
-    @ManyToMany
-    @Column(nullable = false)
-    private List<FieldChange> fieldChanges = new ArrayList<>();
+    public User() {}
 
-    @ManyToMany
-    @Column(nullable = false)
-    private List<MethodChange> methodChanges = new ArrayList<>();
+    public User(int id, String name, String discordId, String role) {
+        this.id = id;
+        this.name = name;
+        this.discordId = discordId;
+        this.role = role;
+    }
 
-    //@formatter:off
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public String getRole() { return role; }
-    public long getDiscordId() { return discordId; }
-    public List<FieldChange> getFieldChanges() { return fieldChanges; }
-    public List<MethodChange> getMethodChanges() { return methodChanges; }
-    public void setName(String name) { this.name = name; }
-    public void setDiscordId(long discordId) { this.discordId = discordId; }
-    public void setRole(String role) { this.role = role; }
-    public void setFieldChanges(List<FieldChange> fieldChanges) { this.fieldChanges = fieldChanges; }
-    public void setMethodChanges(List<MethodChange> methodChanges) { this.methodChanges = methodChanges; }
-    public void addFieldChange(FieldChange change) { fieldChanges.add(change); }
-    public void addMethodChange(MethodChange change) { methodChanges.add(change); }
-    //@formatter:on
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDiscordId() {
+        return discordId;
+    }
+
+    public void setDiscordId(String discordId) {
+        this.discordId = discordId;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }
