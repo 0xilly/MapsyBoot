@@ -6,17 +6,30 @@ plugins {
 
 group = 'net.minecraftforge'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '15'
+sourceCompatibility = '14'
 
 repositories {
     mavenCentral()
+    jcenter()
+    maven {
+        name = 'Forge Maven'
+        url = 'http://files.minecraftforge.net/maven'
+    }
+    maven {
+        name = 'Mojang Maven'
+        url = 'https://libraries.minecraft.net'
+    }
+
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-    implementation 'org.javacord:javacord:3.1.1'
+    implementation 'net.dv8tion:JDA:4.2.0_222'
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.1'
+    implementation 'net.minecraftforge:srgutils:0.2.12'
+    implementation 'com.mojang:brigadier:1.0.17'
+
     developmentOnly 'com.h2database:h2:1.4.200'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
