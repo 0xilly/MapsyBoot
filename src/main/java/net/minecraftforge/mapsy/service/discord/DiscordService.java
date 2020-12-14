@@ -73,7 +73,7 @@ public class DiscordService extends ListenerAdapter {
         try {
            commandDispatcher.execute(reader, source);
         } catch (CommandSyntaxException e) {
-            channel.sendMessage(e.getRawMessage().getString() + " `" + reader.getString() +"`").complete();
+            channel.sendMessage(e.getRawMessage().getString()).complete();
         } catch (Throwable t) {
             channel.sendMessage("Error executing command see log file").complete();
             logger.trace(t.getMessage());
