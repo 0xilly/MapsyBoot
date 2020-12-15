@@ -34,6 +34,10 @@ public class FieldName {
 
     private String mcp;
 
+    private boolean locked;
+
+    private String description;
+
     //@formatter:off
     public long getId() { return id; }
     public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
@@ -43,6 +47,8 @@ public class FieldName {
     public String getMojang() { return mojang; }
     public String getSrg() { return srg; }
     public String getMcp() { return mcp; }
+    public boolean isLocked() { return locked; }
+    public String getDescription() { return description; }
     public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setOwner(ClassName owner) { this.owner = owner; }
     public void setSide(MappingSide side) { this.side = side; }
@@ -50,6 +56,8 @@ public class FieldName {
     public void setMojang(String mojang) { this.mojang = mojang; }
     public void setSrg(String srg) { this.srg = srg; }
     public void setMcp(String mcp) { this.mcp = mcp; }
+    public void setLocked(boolean locked) { this.locked = locked; }
+    public void setDescription(String description) { this.description = description; }
     //@formatter:on
 
 }

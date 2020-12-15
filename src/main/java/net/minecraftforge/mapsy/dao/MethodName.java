@@ -42,6 +42,10 @@ public class MethodName {
 
     private String mcp;
 
+    private boolean locked;
+
+    private String description;
+
     public MethodName() {
     }
 
@@ -56,6 +60,8 @@ public class MethodName {
     public String getSrg() { return srg; }
     public String getDesc() { return desc; }
     public String getMcp() { return mcp; }
+    public boolean isLocked() { return locked; }
+    public String getDescription() { return description; }
     public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setOwners(List<ClassName> owners) { this.owners = owners; }
     public void setSide(MappingSide side) { this.side = side; }
@@ -66,5 +72,7 @@ public class MethodName {
     public void setDesc(String desc) { this.desc = desc; }
     public void setMcp(String mcp) { this.mcp = mcp; }
     public void addOwner(ClassName owner) { owners.add(owner); }
+    public void setLocked(boolean locked) { this.locked = locked; }
+    public void setDescription(String description) { this.description = description; }
     //@formatter:on
 }
