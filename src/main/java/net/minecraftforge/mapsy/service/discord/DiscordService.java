@@ -31,15 +31,18 @@ public class DiscordService extends ListenerAdapter {
 
     @PostConstruct
     private void discordServiceInit() {
-       commandDispatcher = new CommandDispatcher<>();
-       discordConfig.registerListener(this);
-       discordConfig.start();
+        if (discordConfig.available()) {
+            commandDispatcher = new CommandDispatcher<>();
+            discordConfig.registerListener(this);
+            discordConfig.start();
+        }
     }
 
     public void registerCommand(LiteralArgumentBuilder<CommandSource> literal) {
-        commandDispatcher.register(literal);
+        if (discordConfig.available()) {
+            commandDispatcher.register(literal);
+        }
     }
-
 
     @Override
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent evt) {
@@ -77,7 +80,7 @@ public class DiscordService extends ListenerAdapter {
             }
         }
         try {
-           commandDispatcher.execute(reader, source);
+            commandDispatcher.execute(reader, source);
         } catch (CommandSyntaxException e) {
             channel.sendMessage(e.getRawMessage().getString()).complete();
         } catch (Throwable t) {

@@ -4,32 +4,36 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.security.auth.login.LoginException;
+import java.util.Objects;
 
 @Configuration
 public class DiscordConfiguration {
 
-    @Value("${discord.token}")
+    @Value ("${discord.token}")
     private String token;
 
-    @Value("${discord.cmdop}")
+    @Value ("${discord.cmdop}")
     private String cmdOp;
 
     private JDA jda;
 
     @PostConstruct
     public void initBot() {
-        try {
-            jda = JDABuilder.createDefault(token).build();
-        } catch (LoginException e) {
-            e.printStackTrace();
+        if (!StringUtils.hasText(token) && !Objects.equals(token, "token")) {
+            try {
+                jda = JDABuilder.createDefault(token).build();
+            } catch (LoginException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void registerListener(Object object) {
-       jda.addEventListener(object);
+        jda.addEventListener(object);
     }
 
     public void start() {
@@ -53,10 +57,15 @@ public class DiscordConfiguration {
         System.exit(2);
     }
 
+    public boolean available() {
+        return jda != null;
+    }
+
     public void restart() {
         stop();
         start();
     }
+
     public JDA getJda() {
         return this.jda;
     }
