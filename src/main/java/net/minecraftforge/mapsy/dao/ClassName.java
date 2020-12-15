@@ -1,5 +1,7 @@
 package net.minecraftforge.mapsy.dao;
 
+import net.minecraftforge.mapsy.util.MappingSide;
+
 import javax.persistence.*;
 
 /**
@@ -24,15 +26,20 @@ public class ClassName {
     @Column (nullable = false)
     private String srg;
 
+    @Column (nullable = false)
+    private MappingSide side;
+
     //@formatter:off
     public long getId() { return id; }
     public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
     public String getObf() { return obf; }
     public String getMojang() { return mojang; }
     public String getSrg() { return srg; }
+    public MappingSide getSide() { return side; }
     public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setObf(String obf) { this.obf = obf; }
     public void setMojang(String mojang) { this.mojang = mojang; }
     public void setSrg(String srg) { this.srg = srg; }
+    public void setSide(MappingSide side) { this.side = side; }
     //@formatter:on
 }
