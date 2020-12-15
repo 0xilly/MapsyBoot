@@ -12,11 +12,9 @@ public class PingCommand extends AbstractCommand {
 
     @Override
     public void init() {
-
         discord.registerCommand(literal("ping").executes(src-> {
             src.getSource().getChannel().sendMessage("Pong!").complete();
             return 0;
         }));
-
     }
 }

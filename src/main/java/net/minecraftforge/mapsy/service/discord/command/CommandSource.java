@@ -28,9 +28,7 @@ public class CommandSource {
         return channel;
     }
 
-
     public boolean isDirect() {
         return channel instanceof PrivateChannel;
     }
-
 }

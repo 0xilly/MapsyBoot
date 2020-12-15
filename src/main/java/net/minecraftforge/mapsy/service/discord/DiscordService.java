@@ -46,12 +46,18 @@ public class DiscordService extends ListenerAdapter {
         if (evt.getAuthor().isBot()) {
             return;
         }
+        if (!evt.getMessage().getAttachments().isEmpty()) {
+            return;
+        }
         handleMessage(evt.getMessage(), evt.getAuthor(), evt.getChannel());
     }
 
     @Override
     public void onPrivateMessageReceived(@NotNull PrivateMessageReceivedEvent evt) {
         if (evt.getAuthor().isBot()) {
+            return;
+        }
+        if (!evt.getMessage().getAttachments().isEmpty()) {
             return;
         }
         handleMessage(evt.getMessage(), evt.getAuthor(), evt.getChannel());
@@ -82,5 +88,9 @@ public class DiscordService extends ListenerAdapter {
 
     public DiscordConfiguration getDiscordConfig() {
         return discordConfig;
+    }
+
+    public CommandDispatcher<CommandSource> getCommandDispatcher() {
+        return commandDispatcher;
     }
 }
