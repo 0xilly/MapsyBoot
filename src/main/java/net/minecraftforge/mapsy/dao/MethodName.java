@@ -1,5 +1,7 @@
 package net.minecraftforge.mapsy.dao;
 
+import net.minecraftforge.mapsy.util.MappingSide;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,9 @@ public class MethodName {
 
     @ManyToMany
     private List<ClassName> owners = new ArrayList<>();
+
+    @Column (nullable = false)
+    private MappingSide side = MappingSide.BOTH;
 
     @Column (nullable = false)
     private String obf;
@@ -44,6 +49,7 @@ public class MethodName {
     public long getId() { return id; }
     public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
     public List<ClassName> getOwners() { return owners; }
+    public MappingSide getSide() { return side; }
     public String getObf() { return obf; }
     public String getObfDesc() { return obfDesc; }
     public String getMojang() { return mojang; }
@@ -52,6 +58,7 @@ public class MethodName {
     public String getMcp() { return mcp; }
     public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setOwners(List<ClassName> owners) { this.owners = owners; }
+    public void setSide(MappingSide side) { this.side = side; }
     public void setObf(String obf) { this.obf = obf; }
     public void setObfDesc(String obfDesc) { this.obfDesc = obfDesc; }
     public void setMojang(String mojang) { this.mojang = mojang; }
