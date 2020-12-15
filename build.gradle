@@ -30,6 +30,5 @@ dependencies {
     implementation 'net.minecraftforge:srgutils:0.2.12'
     implementation 'com.mojang:brigadier:1.0.17'
 
-    developmentOnly 'com.h2database:h2:1.4.200'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

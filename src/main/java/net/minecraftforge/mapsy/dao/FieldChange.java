@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * Created by covers1624 on 14/12/20.
  */
-@Entity (name = "history_change")
+@Entity (name = "field_change")
 public class FieldChange {
 
     @Id
@@ -14,11 +14,9 @@ public class FieldChange {
     private long id;
 
     @ManyToOne
-    @Column (nullable = false)
     private User user;
 
     @ManyToOne
-    @Column (nullable = false)
     private FieldName field;
 
     @Column (nullable = false)

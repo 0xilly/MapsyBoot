@@ -21,11 +21,9 @@ public class User {
     private String role;
 
     @ManyToMany
-    @Column(nullable = false)
     private List<FieldChange> fieldChanges = new ArrayList<>();
 
     @ManyToMany
-    @Column(nullable = false)
     private List<MethodChange> methodChanges = new ArrayList<>();
 
     //@formatter:off

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 14/12/20.
  */
-@Entity (name = "field")
+@Entity (name = "method")
 public class MethodName {
 
     @Id

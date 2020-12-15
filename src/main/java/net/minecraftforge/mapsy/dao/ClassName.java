@@ -5,7 +5,7 @@ import javax.persistence.*;
 /**
  * Created by covers1624 on 14/12/20.
  */
-@Entity (name = "minecraft_version")
+@Entity (name = "class")
 public class ClassName {
 
     @Id
