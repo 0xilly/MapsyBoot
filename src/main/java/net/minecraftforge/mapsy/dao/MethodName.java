@@ -29,7 +29,7 @@ public class MethodName {
     private String obf;
 
     @Column (nullable = false)
-    private String obfDesc;
+    private String obfDesciptor;
 
     @Column (nullable = false)
     private String mojang;
@@ -38,7 +38,7 @@ public class MethodName {
     private String srg;
 
     @Column (nullable = false)
-    private String desc;
+    private String descriptor;
 
     private String mcp;
 
@@ -55,10 +55,10 @@ public class MethodName {
     public List<ClassName> getOwners() { return owners; }
     public MappingSide getSide() { return side; }
     public String getObf() { return obf; }
-    public String getObfDesc() { return obfDesc; }
+    public String getObfDesciptor() { return obfDesciptor; }
     public String getMojang() { return mojang; }
     public String getSrg() { return srg; }
-    public String getDesc() { return desc; }
+    public String getDescriptor() { return descriptor; }
     public String getMcp() { return mcp; }
     public boolean isLocked() { return locked; }
     public String getDescription() { return description; }
@@ -66,10 +66,10 @@ public class MethodName {
     public void setOwners(List<ClassName> owners) { this.owners = owners; }
     public void setSide(MappingSide side) { this.side = side; }
     public void setObf(String obf) { this.obf = obf; }
-    public void setObfDesc(String obfDesc) { this.obfDesc = obfDesc; }
+    public void setObfDesciptor(String obfDesc) { this.obfDesciptor = obfDesc; }
     public void setMojang(String mojang) { this.mojang = mojang; }
     public void setSrg(String srg) { this.srg = srg; }
-    public void setDesc(String desc) { this.desc = desc; }
+    public void setDescriptor(String desc) { this.descriptor = desc; }
     public void setMcp(String mcp) { this.mcp = mcp; }
     public void addOwner(ClassName owner) { owners.add(owner); }
     public void setLocked(boolean locked) { this.locked = locked; }

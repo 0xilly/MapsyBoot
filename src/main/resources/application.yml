@@ -1,3 +1,10 @@
+spring:
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
 discord:
   token: 'token'
   cmdop: '!'
