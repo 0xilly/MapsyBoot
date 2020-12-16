@@ -34,7 +34,7 @@ public class HelpCommand extends AbstractCommand {
                             ParseResults<CommandSource> results = dispatcher.parse(StringArgumentType.getString(src, "command"), src.getSource());
 
                             if (results.getContext().getNodes().isEmpty()) {
-                                var sender = src.getSource().getUser().getAsMention();
+                                var sender = src.getSource().getDiscordUser().getAsMention();
                                 src.getSource().getChannel().sendMessage(sender + " unknown command").complete();
                                 return -1;
                             }

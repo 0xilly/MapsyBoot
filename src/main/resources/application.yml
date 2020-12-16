@@ -7,4 +7,4 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
 discord:
   token: 'token'
-  cmdop: '!'
+  cmd-op: '!'

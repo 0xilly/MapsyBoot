@@ -14,7 +14,7 @@ public class MethodChange {
     private long id;
 
     @ManyToOne
-    private User user;
+    private UserDAO user;
 
     @ManyToOne
     private MethodName method;
@@ -31,12 +31,12 @@ public class MethodChange {
 
     //@formatter:off
     public long getId() { return id; }
-    public User getUser() { return user; }
+    public UserDAO getUser() { return user; }
     public MethodName getMethod() { return method; }
     public Date getTimestamp() { return timestamp; }
     public String getOldName() { return oldName; }
     public String getNewName() { return newName; }
-    public void setUser(User user) { this.user = user; }
+    public void setUser(UserDAO user) { this.user = user; }
     public void setMethod(MethodName method) { this.method = method; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
     public void setOldName(String from) { this.oldName = from; }

@@ -1,7 +1,7 @@
 package net.minecraftforge.mapsy.repository.mapping;
 
 import net.minecraftforge.mapsy.dao.MethodChange;
-import net.minecraftforge.mapsy.dao.User;
+import net.minecraftforge.mapsy.dao.UserDAO;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.stream.Stream;
@@ -11,10 +11,10 @@ import java.util.stream.Stream;
  */
 public interface MethodChangeRepo extends CrudRepository<MethodChange, Long> {
 
-    Stream<MethodChange> getAllByUser(User user);
+    Stream<MethodChange> getAllByUser(UserDAO user);
 
     Stream<MethodChange> getAllByMethod(MethodChange method);
 
-    Stream<MethodChange> getAllByUserAndMethod(User user, MethodChange method);
+    Stream<MethodChange> getAllByUserAndMethod(UserDAO user, MethodChange method);
 
 }

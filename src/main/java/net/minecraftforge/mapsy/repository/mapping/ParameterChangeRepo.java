@@ -10,10 +10,10 @@ import java.util.stream.Stream;
  */
 public interface ParameterChangeRepo extends CrudRepository<ParameterChange, Long> {
 
-    Stream<ParameterChange> getAllByUser(User user);
+    Stream<ParameterChange> getAllByUser(UserDAO user);
 
     Stream<ParameterChange> getAllByParameter(ParameterName parameter);
 
-    Stream<ParameterChange> getAllByUserAndParameter(User user, ParameterName parameter);
+    Stream<ParameterChange> getAllByUserAndParameter(UserDAO user, ParameterName parameter);
 
 }

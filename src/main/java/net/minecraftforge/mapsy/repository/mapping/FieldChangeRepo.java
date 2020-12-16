@@ -2,7 +2,7 @@ package net.minecraftforge.mapsy.repository.mapping;
 
 import net.minecraftforge.mapsy.dao.FieldChange;
 import net.minecraftforge.mapsy.dao.FieldName;
-import net.minecraftforge.mapsy.dao.User;
+import net.minecraftforge.mapsy.dao.UserDAO;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.stream.Stream;
@@ -12,10 +12,10 @@ import java.util.stream.Stream;
  */
 public interface FieldChangeRepo extends CrudRepository<FieldChange, Long> {
 
-    Stream<FieldChange> getAllByUser(User user);
+    Stream<FieldChange> getAllByUser(UserDAO user);
 
     Stream<FieldChange> getAllByField(FieldName field);
 
-    Stream<FieldChange> getAllByUserAndField(User user, FieldName field);
+    Stream<FieldChange> getAllByUserAndField(UserDAO user, FieldName field);
 
 }

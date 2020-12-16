@@ -1,76 +1,41 @@
 package net.minecraftforge.mapsy.configuration;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
-import javax.security.auth.login.LoginException;
-import java.util.Objects;
+import java.util.Set;
 
 @Configuration
+@ConfigurationProperties (prefix = "discord")
 public class DiscordConfiguration {
 
-    @Value ("${discord.token}")
     private String token;
 
-    @Value ("${discord.cmdop}")
-    private String cmdOp;
+    private Character cmdOp;
 
-    private JDA jda;
+    private Set<Long> forcedAdmins;
 
-    @PostConstruct
-    public void initBot() {
-        if (!StringUtils.hasText(token) && !Objects.equals(token, "token")) {
-            try {
-                jda = JDABuilder.createDefault(token).build();
-            } catch (LoginException e) {
-                e.printStackTrace();
-            }
-        }
+    public String getToken() {
+        return token;
     }
 
-    public void registerListener(Object object) {
-        jda.addEventListener(object);
+    public void setToken(String token) {
+        this.token = token;
     }
 
-    public void start() {
-        try {
-            jda.awaitReady();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void stop() {
-        jda.shutdown();
-    }
-
-    public void emergencyStop() {
-        jda.shutdownNow();
-    }
-
-    public void shutdown() {
-        jda.shutdownNow();
-        System.exit(2);
-    }
-
-    public boolean available() {
-        return jda != null;
-    }
-
-    public void restart() {
-        stop();
-        start();
-    }
-
-    public JDA getJda() {
-        return this.jda;
-    }
-
-    public String getCmdOp() {
+    public Character getCmdOp() {
         return cmdOp;
+    }
+
+    public void setCmdOp(Character cmdOp) {
+        this.cmdOp = cmdOp;
+    }
+
+    public Set<Long> getForcedAdmins() {
+        return forcedAdmins;
+    }
+
+    public void setForcedAdmins(Set<Long> forcedAdmins) {
+        this.forcedAdmins = forcedAdmins;
     }
 }

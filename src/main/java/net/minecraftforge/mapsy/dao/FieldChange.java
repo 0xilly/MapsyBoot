@@ -14,7 +14,7 @@ public class FieldChange {
     private long id;
 
     @ManyToOne
-    private User user;
+    private UserDAO user;
 
     @ManyToOne
     private FieldName field;
@@ -31,12 +31,12 @@ public class FieldChange {
 
     //@formatter:off
     public long getId() { return id; }
-    public User getUser() { return user; }
+    public UserDAO getUser() { return user; }
     public FieldName getField() { return field; }
     public Date getTimestamp() { return timestamp; }
     public String getOldName() { return oldName; }
     public String getNewName() { return newName; }
-    public void setUser(User user) { this.user = user; }
+    public void setUser(UserDAO user) { this.user = user; }
     public void setField(FieldName field) { this.field = field; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
     public void setOldName(String from) { this.oldName = from; }

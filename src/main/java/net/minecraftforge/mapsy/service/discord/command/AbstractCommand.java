@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractCommand {
 
-    private static final Pattern USER_PATTERN = Pattern.compile("(?<=<@)((?>\\d)*)(?=>)");
+    private static final Pattern USER_PATTERN = Pattern.compile("<@!?(\\d+)>");
 
     protected LiteralArgumentBuilder<CommandSource> literal(String name) {
         return LiteralArgumentBuilder.literal(name);
@@ -32,7 +32,7 @@ public abstract class AbstractCommand {
             if (!matcher.find()) {
                 throw invalidUser().createWithContext(reader, str);
             }
-            String match = matcher.group();
+            String match = matcher.group(1);
             return Long.parseLong(match);
         };
     }
@@ -40,7 +40,7 @@ public abstract class AbstractCommand {
     private boolean isAllowedInUser(char c) {
         return c >= '0' && c <= '9'//
                 || c == '<' || c == '>'//
-                || c == '@';
+                || c == '@' || c == '!';
     }
 
     private static DynamicCommandExceptionType invalidUser() {
