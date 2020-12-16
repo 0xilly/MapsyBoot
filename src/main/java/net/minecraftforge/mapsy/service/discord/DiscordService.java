@@ -15,24 +15,20 @@ import net.minecraftforge.mapsy.service.discord.command.CommandSource;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 
 @Service
 public class DiscordService extends ListenerAdapter {
 
-    @Autowired
-    private DiscordConfiguration discordConfig;
-    private CommandDispatcher<CommandSource> commandDispatcher;
+    private final DiscordConfiguration discordConfig;
+    private final CommandDispatcher<CommandSource> commandDispatcher = new CommandDispatcher<>();
 
     private final static Logger logger = LoggerFactory.getLogger(DiscordService.class);
 
-    @PostConstruct
-    private void discordServiceInit() {
+    public DiscordService(DiscordConfiguration discordConfig) {
+        this.discordConfig = discordConfig;
+
         if (discordConfig.available()) {
-            commandDispatcher = new CommandDispatcher<>();
             discordConfig.registerListener(this);
             discordConfig.start();
         }
