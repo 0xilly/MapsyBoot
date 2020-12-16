@@ -75,7 +75,7 @@ public class VersionCacheService {
 
         VersionInfoJson versionJson = versionCache.get(version);
 
-        if (version == null || !action.isUpToDate()) {
+        if (versionJson == null || !action.isUpToDate()) {
             try (BufferedReader reader = Files.newBufferedReader(versionFile)) {
                 versionJson = Utils.gson.fromJson(reader, VersionInfoJson.class);
                 versionCache.put(version, versionJson);
