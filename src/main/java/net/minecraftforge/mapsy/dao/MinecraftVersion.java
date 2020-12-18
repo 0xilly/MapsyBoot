@@ -17,9 +17,14 @@ public class MinecraftVersion {
 
     private String name;
 
+    private boolean latest;
+
     //@formatter:off
     public long getId() { return id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public boolean isLatest() { return latest; }
+
+    public void setLatest(boolean latest) { this.latest = latest; }
     //@formatter:on
 }

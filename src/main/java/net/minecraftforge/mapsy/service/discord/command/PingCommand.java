@@ -4,7 +4,7 @@ import net.minecraftforge.mapsy.service.discord.DiscordService;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class PingCommand extends AbstractCommand {
+public class PingCommand extends BaseCommand {
 
     public PingCommand(DiscordService discord) {
         discord.registerCommand(literal("ping")
