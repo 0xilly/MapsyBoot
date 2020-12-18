@@ -13,9 +13,9 @@ import java.util.stream.Stream;
  */
 public interface FieldNameRepo extends CrudRepository<FieldName, Long> {
 
-    Stream<FieldName> getAllByOwner(ClassName owner);
+    Stream<FieldName> findAllByOwner(ClassName owner);
 
-    Stream<FieldName> getAllByMinecraftVersion(MinecraftVersion version);
+    Stream<FieldName> findAllByMinecraftVersion(MinecraftVersion version);
 
     Optional<FieldName> findByObfAndMinecraftVersion(String obf, MinecraftVersion version);
 

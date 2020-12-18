@@ -17,9 +17,13 @@ public class MinecraftVersion {
 
     private String name;
 
-    //@formatter:off
     public MinecraftVersion() {}
-    public MinecraftVersion(String name) { this.name = name; }
+
+    public MinecraftVersion(String name) {
+        this.name = name;
+    }
+
+    //@formatter:off
     public long getId() { return id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

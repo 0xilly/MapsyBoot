@@ -10,10 +10,15 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Created by covers1624 on 15/12/20.
@@ -21,9 +26,54 @@ import java.util.Map;
 @SuppressWarnings ("UnstableApiUsage")
 public class Utils {
 
+    //32k buffer.
+    private static final ThreadLocal<byte[]> bufferCache = ThreadLocal.withInitial(() -> new byte[32 * 1024]);
     public static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(HashCode.class, new HashCodeAdapter())//
             .registerTypeAdapterFactory(new LowerCaseEnumAdapterFactory()).create();
+
+
+    public static Map<String, byte[]> loadZip(InputStream is) throws IOException {
+        Map<String, byte[]> files = new HashMap<>();
+        try (ZipInputStream zin = new ZipInputStream(is)) {
+            ZipEntry entry;
+            while ((entry = zin.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                files.put(entry.getName(), toBytes(zin));
+            }
+        }
+        return files;
+    }
+
+    /**
+     * Copies the content of an InputStream to an OutputStream.
+     *
+     * @param is The InputStream.
+     * @param os The OutputStream.
+     * @throws IOException If something is bork.
+     */
+    public static void copy(InputStream is, OutputStream os) throws IOException {
+        byte[] buffer = bufferCache.get();
+        int len;
+        while ((len = is.read(buffer)) != -1) {
+            os.write(buffer, 0, len);
+        }
+    }
+
+    /**
+     * Reads an InputStream to a byte array.
+     *
+     * @param is The InputStream.
+     * @return The bytes.
+     * @throws IOException If something is bork.
+     */
+    public static byte[] toBytes(InputStream is) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        copy(is, os);
+        return os.toByteArray();
+    }
 
     private static class HashCodeAdapter extends TypeAdapter<HashCode> {
 

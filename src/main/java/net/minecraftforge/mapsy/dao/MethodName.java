@@ -28,7 +28,7 @@ public class MethodName {
     @Column (nullable = false)
     private String obf;
 
-    @Column (nullable = false)
+    @Column (nullable = false, columnDefinition = "TEXT")
     private String obfDesciptor;
 
     @Column (nullable = false)
@@ -37,13 +37,14 @@ public class MethodName {
     @Column (nullable = false)
     private String srg;
 
-    @Column (nullable = false)
+    @Column (nullable = false, columnDefinition = "TEXT")
     private String descriptor;
 
     private String mcp;
 
     private boolean locked;
 
+    @Column (columnDefinition = "TEXT")
     private String description;
 
     public MethodName() {

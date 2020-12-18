@@ -36,6 +36,7 @@ public class FieldName {
 
     private boolean locked;
 
+    @Column (columnDefinition = "TEXT")
     private String description;
 
     //@formatter:off
