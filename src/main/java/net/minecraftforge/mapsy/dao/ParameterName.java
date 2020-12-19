@@ -22,9 +22,6 @@ public class ParameterName {
     private MethodName owner;
 
     @Column (nullable = false)
-    private MappingSide side;
-
-    @Column (nullable = false)
     private String srg;
 
     private String mcp;
@@ -35,13 +32,11 @@ public class ParameterName {
     public long getId() { return id; }
     public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
     public MethodName getOwner() { return owner; }
-    public MappingSide getSide() { return side; }
     public String getSrg() { return srg; }
     public String getMcp() { return mcp; }
     public boolean isLocked() { return locked; }
     public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setOwner(MethodName owner) { this.owner = owner; }
-    public void setSide(MappingSide side) { this.side = side; }
     public void setSrg(String srg) { this.srg = srg; }
     public void setMcp(String mcp) { this.mcp = mcp; }
     public void setLocked(boolean locked) { this.locked = locked; }

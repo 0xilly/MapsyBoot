@@ -2,9 +2,13 @@ spring:
   jpa:
     database: mysql
     hibernate:
+      jbdc:
+        batch_size: 300
       ddl-auto: update
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      maximum-pool-size: 50
 discord:
   token: 'token'
   cmd-op: '!'

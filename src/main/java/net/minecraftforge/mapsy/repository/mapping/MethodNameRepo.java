@@ -13,9 +13,9 @@ import java.util.stream.Stream;
  */
 public interface MethodNameRepo extends CrudRepository<MethodName, Long> {
 
-    Stream<MethodName> getAllByOwnersContains(ClassName owner);
+    Stream<MethodName> findAllByOwnersContains(ClassName owner);
 
-    Stream<MethodName> getAllByMinecraftVersion(MinecraftVersion version);
+    Stream<MethodName> findAllByMinecraftVersion(MinecraftVersion version);
 
     Optional<MethodName> findByObfAndMinecraftVersion(String obf, MinecraftVersion version);
 
@@ -25,6 +25,6 @@ public interface MethodNameRepo extends CrudRepository<MethodName, Long> {
 
     Optional<MethodName> findByMcpAndMinecraftVersion(String mcp, MinecraftVersion version);
 
-    Optional<MethodName> findByMcpAndDescriptorAndMinecraftVersion(String mcp, String desc, MinecraftVersion version);
+    Optional<MethodName> findByMcpAndSrgDescriptorAndMinecraftVersion(String mcp, String desc, MinecraftVersion version);
 
 }
