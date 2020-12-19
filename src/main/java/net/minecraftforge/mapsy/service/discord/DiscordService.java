@@ -110,6 +110,7 @@ public class DiscordService {
                 .fromUser(userService.getUserFromDiscord(user))
                 .in(channel)
                 .insertAttachments(attachments);
+        if (message.getContentRaw().isEmpty()) return;
         var reader = new StringReader(message.getContentRaw());
         logger.info(reader.getString());
         if (reader.canRead()) {
