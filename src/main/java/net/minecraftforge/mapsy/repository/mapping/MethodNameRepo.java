@@ -25,6 +25,6 @@ public interface MethodNameRepo extends CrudRepository<MethodName, Long> {
 
     Optional<MethodName> findByMcpAndMinecraftVersion(String mcp, MinecraftVersion version);
 
-    Optional<MethodName> findByMcpAndDescriptorAndMinecraftVersion(String mcp, String desc, MinecraftVersion version);
+    Optional<MethodName> findByMcpAndSrgDescriptorAndMinecraftVersion(String mcp, String desc, MinecraftVersion version);
 
 }

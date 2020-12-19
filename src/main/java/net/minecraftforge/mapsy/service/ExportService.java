@@ -112,7 +112,7 @@ public class ExportService {
                 if (e.getMcp() != null) {
                     line[0] = e.getSrg();
                     line[1] = e.getMcp();
-                    line[2] = String.valueOf(e.getSide().ordinal());
+                    line[2] = String.valueOf(e.getOwner().getSide().ordinal());
                     writer.writeNext(line, false);
                 }
             });
