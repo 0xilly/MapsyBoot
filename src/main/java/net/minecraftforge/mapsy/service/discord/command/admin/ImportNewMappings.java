@@ -11,7 +11,7 @@ public class ImportNewMappings extends BaseCommand {
 
     public ImportNewMappings(DiscordService discord, ClassNameRepo repo) {
        discord.registerCommand(literal("import").requires(CommandSource::isAdmin)
-               .then(arguments("force", discordUserArgument()).executes(ctx -> {
+           /*    .then(arguments("force", StringArgumentType.greedyString()).executes(ctx -> {
                    int size = ctx.getSource().getAttachments().size();
                    if (size == 1) {
                        String name = ctx.getSource().getAttachments().get(1).getFileName();
@@ -27,7 +27,7 @@ public class ImportNewMappings extends BaseCommand {
                        ctx.getSource().getChannel().sendMessage("Only zip may be used").complete();
                        return -1;
                    }
-               }))
+               }))*/
                .executes(ctx -> {
                    int size = ctx.getSource().getAttachments().size();
                    if (size == 1) {
