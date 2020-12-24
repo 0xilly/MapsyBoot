@@ -1,6 +1,8 @@
 package net.minecraftforge.mapsy.repository.mapping;
 
-import net.minecraftforge.mapsy.dao.*;
+import net.minecraftforge.mapsy.dao.MethodName;
+import net.minecraftforge.mapsy.dao.MinecraftVersion;
+import net.minecraftforge.mapsy.dao.ParameterName;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
@@ -13,7 +15,7 @@ public interface ParameterNameRepo extends CrudRepository<ParameterName, Long> {
 
     Stream<ParameterName> getAllByOwner(MethodName owner);
 
-    Stream<ParameterName> getAllByMinecraftVersion(MinecraftVersion version);
+    Stream<ParameterName> findAllByMinecraftVersion(MinecraftVersion version);
 
     Optional<ParameterName> findBySrgAndMinecraftVersion(String srg, MinecraftVersion version);
 

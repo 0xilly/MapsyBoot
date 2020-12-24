@@ -7,4 +7,13 @@ public enum MappingSide {
     CLIENT,
     SERVER,
     BOTH;
+
+    public MappingSide opposite() {
+        return switch (this) {
+            case CLIENT -> SERVER;
+            case SERVER -> CLIENT;
+            case BOTH -> null;
+        };
+    }
+
 }

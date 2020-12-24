@@ -39,7 +39,17 @@ public class FieldChange {
     public void setUser(UserDAO user) { this.user = user; }
     public void setField(FieldName field) { this.field = field; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
-    public void setOldName(String from) { this.oldName = from; }
-    public void setNewName(String to) { this.newName = to; }
+    public void setOldName(String from) { oldName = from; }
+    public void setNewName(String to) { newName = to; }
     //@formatter:on
+
+    public FieldChange fork(FieldName newField) {
+        FieldChange fChange = new FieldChange();
+        fChange.setUser(getUser());
+        fChange.setField(newField);
+        fChange.setTimestamp(getTimestamp());
+        fChange.setOldName(getOldName());
+        fChange.setNewName(getNewName());
+        return fChange;
+    }
 }

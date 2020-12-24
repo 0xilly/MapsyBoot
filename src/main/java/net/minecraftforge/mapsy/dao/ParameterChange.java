@@ -39,7 +39,17 @@ public class ParameterChange {
     public void setUser(UserDAO user) { this.user = user; }
     public void setParameter(ParameterName parameter) { this.parameter = parameter; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
-    public void setOldName(String from) { this.oldName = from; }
-    public void setNewName(String to) { this.newName = to; }
+    public void setOldName(String from) { oldName = from; }
+    public void setNewName(String to) { newName = to; }
     //@formatter:on
+
+    public ParameterChange fork(ParameterName newParameter) {
+        ParameterChange pChange = new ParameterChange();
+        pChange.setUser(getUser());
+        pChange.setParameter(newParameter);
+        pChange.setTimestamp(getTimestamp());
+        pChange.setOldName(getOldName());
+        pChange.setNewName(getNewName());
+        return pChange;
+    }
 }

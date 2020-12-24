@@ -28,7 +28,7 @@ public class MethodCommands extends BaseCommand {
                                 EmbedBuilder builder = new EmbedBuilder();
                                 builder.setColor(Color.BLUE);
                                 builder.addField("Name", String.format("`%s` -> `%s` -> `%s`", m.getObf(), m.getSrg(), m.getMcp()), false);
-                                builder.addField("Descriptor", "`" +m.getDescriptor() + "`", false);
+                                builder.addField("Descriptor", "`" +m.getSrgDescriptor() + "`", false);
                                 if (m.getDescription() != null) {
 
                                     builder.addField("Comment", m.getDescription(), false);

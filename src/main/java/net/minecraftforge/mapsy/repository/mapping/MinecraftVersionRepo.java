@@ -12,5 +12,4 @@ public interface MinecraftVersionRepo extends CrudRepository<MinecraftVersion, L
 
     Optional<MinecraftVersion> findByName(String name);
 
-
 }

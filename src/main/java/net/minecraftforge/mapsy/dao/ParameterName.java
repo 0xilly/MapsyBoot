@@ -1,9 +1,6 @@
 package net.minecraftforge.mapsy.dao;
 
-import net.minecraftforge.mapsy.util.MappingSide;
-
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * Created by covers1624 on 16/12/20.
@@ -41,5 +38,13 @@ public class ParameterName {
     public void setMcp(String mcp) { this.mcp = mcp; }
     public void setLocked(boolean locked) { this.locked = locked; }
     //@formatter:on
+
+    public ParameterName fork() {
+        ParameterName pName = new ParameterName();
+        pName.setSrg(getSrg());
+        pName.setMcp(getMcp());
+        pName.setLocked(isLocked());
+        return pName;
+    }
 
 }

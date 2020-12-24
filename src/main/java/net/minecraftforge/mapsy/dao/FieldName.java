@@ -7,7 +7,7 @@ import javax.persistence.*;
 /**
  * Created by covers1624 on 14/12/20.
  */
-@Entity(name = "field")
+@Entity (name = "field")
 public class FieldName {
 
     @Id
@@ -61,4 +61,14 @@ public class FieldName {
     public void setDescription(String description) { this.description = description; }
     //@formatter:on
 
+    public FieldName fork() {
+        FieldName fName = new FieldName();
+        fName.setObf(getObf());
+        fName.setMojang(getMojang());
+        fName.setSrg(getSrg());
+        fName.setMcp(getMcp());
+        fName.setLocked(isLocked());
+        fName.setDescription(getDescription());
+        return fName;
+    }
 }
