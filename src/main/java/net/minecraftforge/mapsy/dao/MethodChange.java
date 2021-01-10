@@ -17,6 +17,9 @@ public class MethodChange {
     private UserDAO user;
 
     @ManyToOne
+    private MinecraftVersion minecraftVersion;
+
+    @ManyToOne
     private MethodName method;
 
     @Column (nullable = false)
@@ -32,11 +35,13 @@ public class MethodChange {
     //@formatter:off
     public long getId() { return id; }
     public UserDAO getUser() { return user; }
+    public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
     public MethodName getMethod() { return method; }
     public Date getTimestamp() { return timestamp; }
     public String getOldName() { return oldName; }
     public String getNewName() { return newName; }
     public void setUser(UserDAO user) { this.user = user; }
+    public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setMethod(MethodName method) { this.method = method; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
     public void setOldName(String from) { oldName = from; }
@@ -46,6 +51,7 @@ public class MethodChange {
     public MethodChange fork(MethodName newMethod) {
         MethodChange mChange = new MethodChange();
         mChange.setUser(getUser());
+        mChange.setMinecraftVersion(newMethod.getMinecraftVersion());
         mChange.setMethod(newMethod);
         mChange.setTimestamp(getTimestamp());
         mChange.setOldName(getOldName());

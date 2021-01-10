@@ -17,6 +17,9 @@ public class FieldChange {
     private UserDAO user;
 
     @ManyToOne
+    private MinecraftVersion minecraftVersion;
+
+    @ManyToOne
     private FieldName field;
 
     @Column (nullable = false)
@@ -32,11 +35,13 @@ public class FieldChange {
     //@formatter:off
     public long getId() { return id; }
     public UserDAO getUser() { return user; }
+    public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
     public FieldName getField() { return field; }
     public Date getTimestamp() { return timestamp; }
     public String getOldName() { return oldName; }
     public String getNewName() { return newName; }
     public void setUser(UserDAO user) { this.user = user; }
+    public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setField(FieldName field) { this.field = field; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
     public void setOldName(String from) { oldName = from; }
@@ -46,6 +51,7 @@ public class FieldChange {
     public FieldChange fork(FieldName newField) {
         FieldChange fChange = new FieldChange();
         fChange.setUser(getUser());
+        fChange.setMinecraftVersion(newField.getMinecraftVersion());
         fChange.setField(newField);
         fChange.setTimestamp(getTimestamp());
         fChange.setOldName(getOldName());

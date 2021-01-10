@@ -26,7 +26,7 @@ public class AdminManagement extends BaseCommand {
     public void register(DiscordService discord) {
         discord.registerCommand(literal("promote")
                 .requires(CommandSource::isAdmin)
-                .then(arguments("user", discordUserArgument())
+                .then(argument("user", discordUserArgument())
                         .then(literal("admin")
                                 .executes(ctx -> {
                                     long id = ctx.getArgument("user", Long.class);
@@ -57,7 +57,7 @@ public class AdminManagement extends BaseCommand {
         );
         discord.registerCommand(literal("demote")
                 .requires(CommandSource::isAdmin)
-                .then(arguments("user", discordUserArgument())
+                .then(argument("user", discordUserArgument())
                         .executes(ctx -> {
                             long id = ctx.getArgument("user", Long.class);
                             User discordUser = discord.getJda().retrieveUserById(id).complete();
@@ -74,7 +74,7 @@ public class AdminManagement extends BaseCommand {
 
         discord.registerCommand(literal("ban")
                 .requires(CommandSource::isAdmin)
-                .then(arguments("user", discordUserArgument())
+                .then(argument("user", discordUserArgument())
                         .executes(ctx -> {
                             long id = ctx.getArgument("user", Long.class);
                             User discordUser = discord.getJda().retrieveUserById(id).complete();
@@ -91,7 +91,7 @@ public class AdminManagement extends BaseCommand {
 
         discord.registerCommand(literal("pardon")
                 .requires(CommandSource::isAdmin)
-                .then(arguments("user", discordUserArgument())
+                .then(argument("user", discordUserArgument())
                         .executes(ctx -> {
                             long id = ctx.getArgument("user", Long.class);
                             User discordUser = discord.getJda().retrieveUserById(id).complete();
@@ -108,7 +108,7 @@ public class AdminManagement extends BaseCommand {
 
         discord.registerCommand(literal("revert")
                 .requires(CommandSource::isAdmin)
-                .then(arguments("user", discordUserArgument())
+                .then(argument("user", discordUserArgument())
                         .executes(ctx -> {
                             long id = ctx.getArgument("user", Long.class);
                             User discordUser = discord.getJda().retrieveUserById(id).complete();

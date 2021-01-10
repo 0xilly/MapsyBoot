@@ -2,6 +2,7 @@ package net.minecraftforge.mapsy.repository.mapping;
 
 import net.minecraftforge.mapsy.dao.MethodChange;
 import net.minecraftforge.mapsy.dao.MethodName;
+import net.minecraftforge.mapsy.dao.MinecraftVersion;
 import net.minecraftforge.mapsy.dao.UserDAO;
 import org.springframework.data.repository.CrudRepository;
 
@@ -20,5 +21,7 @@ public interface MethodChangeRepo extends CrudRepository<MethodChange, Long> {
     List<MethodChange> getAllByMethod(MethodName method);
 
     Stream<MethodChange> findAllByUserAndMethod(UserDAO user, MethodName method);
+
+    Stream<MethodChange> findAllByMinecraftVersion(MinecraftVersion minecraftVersion);
 
 }

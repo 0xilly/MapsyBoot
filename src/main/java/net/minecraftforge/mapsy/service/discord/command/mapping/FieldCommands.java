@@ -20,7 +20,7 @@ public class FieldCommands extends BaseCommand {
     public FieldCommands(DiscordService discord, FieldNameRepo fieldName, MinecraftVersionRepo versionRepo, MappingService mappingService) {
         discord.registerCommand(literal("gf")
                 .requires(CommandSource::notBanned)
-                .then(arguments("field", StringArgumentType.word()).executes(ctx -> {
+                .then(argument("field", StringArgumentType.word()).executes(ctx -> {
                     String field = ctx.getArgument("field", String.class);
                     versionRepo.findAll().forEach(v -> {
                         if (v.isLatest()) {
@@ -45,8 +45,8 @@ public class FieldCommands extends BaseCommand {
 
         discord.registerCommand(literal("sf")
                 .requires(CommandSource::notBanned)
-                .then(arguments("field", StringArgumentType.string()).
-                        then(arguments("name", StringArgumentType.greedyString())
+                .then(argument("field", StringArgumentType.string()).
+                        then(argument("name", StringArgumentType.greedyString())
                                 .executes(ctx -> {
                                     String obfFName = ctx.getArgument("field", String.class);
                                     String newName = ctx.getArgument("name", String.class);

@@ -2,6 +2,7 @@ package net.minecraftforge.mapsy.repository.mapping;
 
 import net.minecraftforge.mapsy.dao.FieldChange;
 import net.minecraftforge.mapsy.dao.FieldName;
+import net.minecraftforge.mapsy.dao.MinecraftVersion;
 import net.minecraftforge.mapsy.dao.UserDAO;
 import org.springframework.data.repository.CrudRepository;
 
@@ -20,5 +21,7 @@ public interface FieldChangeRepo extends CrudRepository<FieldChange, Long> {
     List<FieldChange> getAllByField(FieldName field);
 
     Stream<FieldChange> findAllByUserAndField(UserDAO user, FieldName field);
+
+    Stream<FieldChange> findAllByMinecraftVersion(MinecraftVersion minecraftVersion);
 
 }

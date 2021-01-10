@@ -1,5 +1,12 @@
 package net.minecraftforge.mapsy.service;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
+import ch.qos.logback.core.Context;
+import ch.qos.logback.core.OutputStreamAppender;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import net.minecraftforge.mapsy.dao.*;
@@ -7,20 +14,15 @@ import net.minecraftforge.mapsy.repository.mapping.*;
 import net.minecraftforge.mapsy.util.Utils;
 import net.minecraftforge.mapsy.util.mcp.MCPConfig;
 import net.minecraftforge.mapsy.util.mcp.MCPConfigImporter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,7 +34,17 @@ import java.util.stream.StreamSupport;
 @Service
 public class ImportService {
 
-    private static final Logger logger = LogManager.getLogger();
+    public static final Executor EXECUTOR = Executors.newSingleThreadExecutor(
+            new ThreadFactoryBuilder()
+                    .setNameFormat("Importer")
+                    .setDaemon(true)
+                    .build()
+    );
+
+    private static final Logger logger = ContextSelectorStaticBinder.getSingleton()
+            .getContextSelector()
+            .getDefaultLoggerContext()
+            .getLogger(ImportService.class);
 
     private final ClassNameRepo classNameRepo;
     private final FieldNameRepo fieldNameRepo;
@@ -67,84 +79,133 @@ public class ImportService {
     }
 
     @Transactional
-    public MinecraftVersion importMCPConfig(InputStream mcpConfig, Optional<MinecraftVersion> forkFrom) throws IOException {
-        Map<String, byte[]> files = Utils.loadZip(mcpConfig);
-        MCPConfig config = Utils.gson.fromJson(new InputStreamReader(new ByteArrayInputStream(files.get("config.json"))), MCPConfig.class);
-        config.zipFiles = files;
-        logger.info("Importing MCP Config for minecraft {}, Forking from minecraft: {}", config.version, forkFrom.map(MinecraftVersion::getName).orElse(null));
+    public ImportReport importMCPConfig(InputStream mcpConfig, Optional<MinecraftVersion> forkFrom) throws IOException {
+        Context ctx = ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext();
+        ByteArrayOutputStream logCapture = new ByteArrayOutputStream();
+        OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<>();
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        {
+            encoder.setPattern("[%d{HH:mm:ss.SSS}] [%thread/%level]: %msg%n");
+            encoder.setCharset(StandardCharsets.UTF_8);
+            encoder.setContext(ctx);
+            encoder.start();
 
-        Optional<MinecraftVersion> mcVersionOpt = versionRepo.findByName(config.version);
-
-        MinecraftVersion mcVersion;
-        if (mcVersionOpt.isEmpty()) {
-            mcVersion = new MinecraftVersion(config.version);
-        } else {
-            MinecraftVersion existing = mcVersionOpt.get();
-            mcVersion = new MinecraftVersion(config.version);
-            mcVersion.setRevision(existing.getRevision() + 1);
-            logger.warn("Minecraft version {} already exists. Revision is now: {}", config.version, mcVersion.getRevision());
-            //TODO, set forkFrom to this version if its not specified?
+            appender.setName("logcapture");
+            appender.setContext(ctx);
+            appender.setEncoder(encoder);
+            appender.setOutputStream(logCapture);
+            appender.start();
         }
-        versionRepo.save(mcVersion);
+        logger.addAppender(appender);
 
-        logger.info("Loading existing mappings..");
-        Map<String, ClassName> existingClasses = forkFrom
-                .map(mc -> classNameRepo.findAllByMinecraftVersion(mc)
-                        .collect(Collectors.toMap(ClassName::getSrg, Function.identity())))
-                .orElse(Collections.emptyMap());
-        Map<String, FieldName> existingFields = forkFrom
-                .map(mc -> fieldNameRepo.findAllByMinecraftVersion(mc)
-                        .collect(Collectors.toMap(FieldName::getSrg, Function.identity())))
-                .orElse(Collections.emptyMap());
-        Map<FieldName, List<FieldChange>> existingFieldChanges = forkFrom
-                .map(mc -> existingFields.values().stream()
-                        .collect(Collectors.toMap(e -> e, fieldChangeRepo::getAllByField)))
-                .orElse(Collections.emptyMap());
-        Map<String, MethodName> existingMethods = forkFrom
-                .map(mc -> methodNameRepo.findAllByMinecraftVersion(mc)
-                        .filter(e -> !e.isConstructor())
-                        .collect(Collectors.toMap(MethodName::getSrg, Function.identity())))
-                .orElse(Collections.emptyMap());
-        Map<MethodName, List<MethodChange>> existingMethodChanges = forkFrom
-                .map(mc -> existingMethods.values().stream()
-                        .collect(Collectors.toMap(e -> e, methodChangeRepo::getAllByMethod)))
-                .orElse(Collections.emptyMap());
+        ImportReport report = new ImportReport();
 
-        Map<String, ParameterName> existingParameters = forkFrom
-                .map(mc -> parameterNameRepo.findAllByMinecraftVersion(mc)
-                        .collect(Collectors.toMap(ParameterName::getSrg, Function.identity())))
-                .orElse(Collections.emptyMap());
+        try {
+            Map<String, byte[]> files = Utils.loadZip(mcpConfig);
+            MCPConfig config = Utils.gson.fromJson(new InputStreamReader(new ByteArrayInputStream(files.get("config.json"))), MCPConfig.class);
+            config.zipFiles = files;
+            logger.info("Importing MCP Config for minecraft {}, Forking from minecraft: {}", config.version, forkFrom.map(MinecraftVersion::getName).orElse(null));
 
-        Map<ParameterName, List<ParameterChange>> existingParameterChanges = forkFrom
-                .map(mc -> existingParameters.values().stream()
-                        .collect(Collectors.toMap(e -> e, parameterChangeRepo::getAllByParameter)))
-                .orElse(Collections.emptyMap());
+            Optional<MinecraftVersion> mcVersionOpt = versionRepo.findLatestRevisionOf(config.version);
 
-        MCPConfigImporter importer = new MCPConfigImporter(
-                config,
-                mcVersion,
-                cacheService,
-                existingClasses,
-                existingFields,
-                existingFieldChanges,
-                existingMethods,
-                existingMethodChanges,
-                existingParameters,
-                existingParameterChanges
-        );
+            MinecraftVersion mcVersion;
+            if (mcVersionOpt.isEmpty()) {
+                mcVersion = new MinecraftVersion(config.version);
+            } else {
+                MinecraftVersion existing = mcVersionOpt.get();
+                mcVersion = new MinecraftVersion(config.version);
+                mcVersion.setRevision(existing.getRevision() + 1);
+                logger.warn("Minecraft version {} already exists. Revision is now: {}", config.version, mcVersion.getRevision());
+            }
+            versionRepo.save(mcVersion);
 
-        importer.process();
+            logger.info("Loading existing mappings..");
+            logger.info("Loading existing classes..");
+            Map<String, ClassName> existingClasses = forkFrom
+                    .map(mc -> classNameRepo.findAllByMinecraftVersion(mc).parallel()
+                            .collect(Collectors.toMap(ClassName::getSrg, Function.identity())))
+                    .orElse(Collections.emptyMap());
+            logger.info("Loading existing fields..");
+            Map<String, FieldName> existingFields = forkFrom
+                    .map(mc -> fieldNameRepo.findAllByMinecraftVersion(mc).parallel()
+                            .collect(Collectors.toMap(FieldName::getSrg, Function.identity())))
+                    .orElse(Collections.emptyMap());
+            logger.info("Loading existing fieldChanges..");
+            Map<FieldName, List<FieldChange>> existingFieldChanges = existingFields.values().stream()
+                    .collect(Collectors.toMap(Function.identity(), e -> new ArrayList<>()));
+            forkFrom.ifPresent(v -> fieldChangeRepo.findAllByMinecraftVersion(v)
+                    .forEach(e -> existingFieldChanges.computeIfAbsent(e.getField(), e2 -> new ArrayList<>())
+                            .add(e)));
 
-        insert("classes", classNameRepo, importer.getClassMap());
-        insert("fields", fieldNameRepo, importer.getFieldMap());
-        insertLists("field changes", fieldChangeRepo, importer.getFieldChangeMap());
-        insert("methods", methodNameRepo, importer.getMethodMap());
-        insertLists("method changes", methodChangeRepo, importer.getMethodChangeMap());
-        insert("constructors", methodNameRepo, importer.getConstructorMap());
-        insert("parameters", parameterNameRepo, importer.getMethodParameterMap());
+            logger.info("Loading existing methods..");
+            Map<String, MethodName> existingMethods = forkFrom
+                    .map(mc -> methodNameRepo.findAllByMinecraftVersion(mc).parallel()
+                            .filter(e -> !e.isConstructor())
+                            .collect(Collectors.toMap(MethodName::getSrg, Function.identity())))
+                    .orElse(Collections.emptyMap());
+            logger.info("Loading existing method changes..");
+            Map<MethodName, List<MethodChange>> existingMethodChanges = existingMethods.values().stream()
+                    .collect(Collectors.toMap(Function.identity(), e -> new ArrayList<>()));
+            forkFrom.ifPresent(v -> methodChangeRepo.findAllByMinecraftVersion(v)
+                    .forEach(e -> existingMethodChanges.computeIfAbsent(e.getMethod(), e2 -> new ArrayList<>())
+                            .add(e)));
 
-        logger.info("Done.");
-        return mcVersion;
+            logger.info("Loading existing parameters..");
+            Map<String, ParameterName> existingParameters = forkFrom
+                    .map(mc -> parameterNameRepo.findAllByMinecraftVersion(mc).parallel()
+                            .collect(Collectors.toMap(ParameterName::getSrg, Function.identity())))
+                    .orElse(Collections.emptyMap());
+
+            logger.info("Loading existing parameter changes..");
+            Map<ParameterName, List<ParameterChange>> existingParameterChanges = existingParameters.values().stream()
+                    .collect(Collectors.toMap(Function.identity(), e -> new ArrayList<>()));
+            forkFrom.ifPresent(v -> parameterChangeRepo.findAllByMinecraftVersion(v)
+                    .forEach(e -> existingParameterChanges.computeIfAbsent(e.getParameter(), e2 -> new ArrayList<>())
+                            .add(e)));
+
+            MCPConfigImporter importer = new MCPConfigImporter(
+                    config,
+                    mcVersion,
+                    cacheService,
+                    existingClasses,
+                    existingFields,
+                    existingFieldChanges,
+                    existingMethods,
+                    existingMethodChanges,
+                    existingParameters,
+                    existingParameterChanges
+            );
+
+            importer.process(appender);
+
+            insert("classes", classNameRepo, importer.getClassMap());
+            insert("fields", fieldNameRepo, importer.getFieldMap());
+            insertLists("field changes", fieldChangeRepo, importer.getFieldChangeMap());
+            insert("methods", methodNameRepo, importer.getMethodMap());
+            insertLists("method changes", methodChangeRepo, importer.getMethodChangeMap());
+            insert("constructors", methodNameRepo, importer.getConstructorMap());
+            insert("parameters", parameterNameRepo, importer.getMethodParameterMap());
+            insertLists("parameter changes", parameterChangeRepo, importer.getParameterChangeMap());
+
+            logger.info("Done.");
+
+            report.importedClasses = importer.getClassMap().size();
+            report.importedFields = importer.getFieldMap().size();
+            report.importedFieldChanges = importer.getFieldChangeMap().values().stream().mapToInt(List::size).sum();
+            report.importedMethods = importer.getMethodMap().size();
+            report.importedMethodChanges = importer.getMethodChangeMap().values().stream().mapToInt(List::size).sum();
+            report.importedConstructors = importer.getConstructorMap().size();
+            report.importedMethodParameters = importer.getMethodParameterMap().size();
+            report.importedMethodParameterChanges = importer.getParameterChangeMap().values().stream().mapToInt(List::size).sum();
+        } catch (Throwable e) {
+            logger.error("Error occurred whilst importing.", e);
+        } finally {
+            logger.detachAppender(appender);
+            appender.stop();
+            encoder.stop();
+        }
+        report.log = logCapture.toByteArray();
+        return report;
     }
 
     private <T> void insert(String desc, CrudRepository<T, ?> repo, Map<?, T> things) {
@@ -202,5 +263,19 @@ public class ImportService {
         try (CSVReader reader = new CSVReaderBuilder(new InputStreamReader(is)).withSkipLines(1).build()) {
             StreamSupport.stream(reader.spliterator(), true).forEach(processor);
         }
+    }
+
+    public static class ImportReport {
+
+        public int importedClasses;
+        public int importedFields;
+        public int importedFieldChanges;
+        public int importedMethods;
+        public int importedMethodChanges;
+        public int importedConstructors;
+        public int importedMethodParameters;
+        public int importedMethodParameterChanges;
+
+        public byte[] log;
     }
 }

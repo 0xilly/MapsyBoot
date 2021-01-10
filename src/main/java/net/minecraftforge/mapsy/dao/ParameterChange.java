@@ -17,6 +17,9 @@ public class ParameterChange {
     private UserDAO user;
 
     @ManyToOne
+    private MinecraftVersion minecraftVersion;
+
+    @ManyToOne
     private ParameterName parameter;
 
     @Column (nullable = false)
@@ -32,11 +35,13 @@ public class ParameterChange {
     //@formatter:off
     public long getId() { return id; }
     public UserDAO getUser() { return user; }
+    public MinecraftVersion getMinecraftVersion() { return minecraftVersion; }
     public ParameterName getParameter() { return parameter; }
     public Date getTimestamp() { return timestamp; }
     public String getOldName() { return oldName; }
     public String getNewName() { return newName; }
     public void setUser(UserDAO user) { this.user = user; }
+    public void setMinecraftVersion(MinecraftVersion minecraftVersion) { this.minecraftVersion = minecraftVersion; }
     public void setParameter(ParameterName parameter) { this.parameter = parameter; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
     public void setOldName(String from) { oldName = from; }
@@ -46,6 +51,7 @@ public class ParameterChange {
     public ParameterChange fork(ParameterName newParameter) {
         ParameterChange pChange = new ParameterChange();
         pChange.setUser(getUser());
+        pChange.setMinecraftVersion(newParameter.getMinecraftVersion());
         pChange.setParameter(newParameter);
         pChange.setTimestamp(getTimestamp());
         pChange.setOldName(getOldName());

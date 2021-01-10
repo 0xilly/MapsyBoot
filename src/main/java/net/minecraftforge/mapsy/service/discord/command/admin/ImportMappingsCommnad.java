@@ -17,7 +17,7 @@ public class ImportMappingsCommnad extends BaseCommand {
 
     public ImportMappingsCommnad(DiscordService discord, ImportService importService, MinecraftVersionRepo versionRepo) {
        discord.registerCommand(literal("import").requires(CommandSource::isAdmin)
-               .then(arguments("force", discordUserArgument()).executes(ctx -> {
+               .then(argument("force", discordUserArgument()).executes(ctx -> {
                    int size = ctx.getSource().getAttachments().size();
                    if (size == 1) {
                        String name = ctx.getSource().getAttachments().get(0).getFileName();
@@ -68,7 +68,7 @@ public class ImportMappingsCommnad extends BaseCommand {
                        if (name.endsWith(".zip")) {
                            Message.Attachment mcpConfig = attach.get(0);
                            try (var in = mcpConfig.retrieveInputStream().get()) {
-                               var version = versionRepo.findByName("1.16.4");//TODO un hardcode this
+                               var version = versionRepo.findLatestRevisionOf("1.16.4");//TODO un hardcode this
                                importService.importMCPSnapshot(in, version.get());
                            } catch (InterruptedException | ExecutionException | IOException e) {
                                e.printStackTrace();

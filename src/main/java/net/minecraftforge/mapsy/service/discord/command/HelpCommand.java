@@ -33,7 +33,7 @@ public class HelpCommand extends BaseCommand {
 
                     return map.size();
                 })
-                .then(arguments("command", StringArgumentType.greedyString())
+                .then(argument("command", StringArgumentType.greedyString())
                         .executes(src -> {
                             var dispatcher = discord.getCommandDispatcher();
                             ParseResults<CommandSource> results = dispatcher.parse(StringArgumentType.getString(src, "command"), src.getSource());

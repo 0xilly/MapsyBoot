@@ -20,7 +20,7 @@ public class MethodCommands extends BaseCommand {
     public MethodCommands(DiscordService discord, MethodNameRepo methodNameRepo, MethodChangeRepo change, MappingService mappingService, MinecraftVersionRepo versionRepo) {
         discord.registerCommand(literal("gm")
                 .requires(CommandSource::notBanned)
-                .then(arguments("method", StringArgumentType.greedyString()).executes(ctx -> {
+                .then(argument("method", StringArgumentType.greedyString()).executes(ctx -> {
                     String method = ctx.getArgument("method", String.class);
                     versionRepo.findAll().forEach(v-> {
                         if (v.isLatest()) {
@@ -45,8 +45,8 @@ public class MethodCommands extends BaseCommand {
 
         discord.registerCommand(literal("sm")
                 .requires(CommandSource::notBanned)
-                .then(arguments("method", StringArgumentType.string())
-                        .then(arguments("name", StringArgumentType.greedyString())
+                .then(argument("method", StringArgumentType.string())
+                        .then(argument("name", StringArgumentType.greedyString())
                                 .executes(ctx -> {
                                     String obfName = ctx.getArgument("method", String.class);
                                     String newName = ctx.getArgument("name", String.class);

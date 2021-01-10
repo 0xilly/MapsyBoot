@@ -1,5 +1,9 @@
 package net.minecraftforge.mapsy.util.mcp;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
+import ch.qos.logback.core.Appender;
 import com.google.common.base.Objects;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
@@ -10,8 +14,6 @@ import net.minecraftforge.mapsy.service.VersionCacheService;
 import net.minecraftforge.mapsy.util.MappingSide;
 import net.minecraftforge.srgutils.IMappingFile;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 
 import java.io.ByteArrayInputStream;
@@ -33,7 +35,10 @@ import java.util.stream.Collectors;
  */
 public class MCPConfigImporter {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = ContextSelectorStaticBinder.getSingleton()
+            .getContextSelector()
+            .getDefaultLoggerContext()
+            .getLogger(MCPConfigImporter.class);
     private static final Pattern srgIdRegex = Pattern.compile("_(\\d*)_");
 
     private final MCPConfig config;
@@ -91,56 +96,62 @@ public class MCPConfigImporter {
         this.existingParameterChanges = existingParameterChanges;
     }
 
-    public void process() throws IOException {
-        logger.info("Parsing inputs..");
-        logger.info("> joined.tsrg");
-        joinedTSrg = IMappingFile.load(new ByteArrayInputStream(config.zipFiles.get(config.getData("mappings"))));
-        joinedRev = joinedTSrg.reverse();
-        validClasses = joinedTSrg.getClasses().stream().map(IMappingFile.INode::getMapped).collect(Collectors.toSet());
-        logger.info("> constructors.txt");
-        constructorIds = parseConstructors(new ByteArrayInputStream(config.zipFiles.get(config.getData("constructors"))));
+    public void process(Appender<ILoggingEvent> appender) throws IOException {
+        try {
+            logger.addAppender(appender);
 
-        logger.info("> client_mappings.txt");
-        clientMojang = load(cacheService.getClientMappings(config.version));
-        logger.info("> server_mappings.txt");
-        serverMojang = load(cacheService.getServerMappings(config.version));
+            logger.info("Parsing inputs..");
+            logger.info("> joined.tsrg");
+            joinedTSrg = IMappingFile.load(new ByteArrayInputStream(config.zipFiles.get(config.getData("mappings"))));
+            joinedRev = joinedTSrg.reverse();
+            validClasses = joinedTSrg.getClasses().stream().map(IMappingFile.INode::getMapped).collect(Collectors.toSet());
+            logger.info("> constructors.txt");
+            constructorIds = parseConstructors(new ByteArrayInputStream(config.zipFiles.get(config.getData("constructors"))));
 
-        logger.info("> srg -> mojang");
-        srgToCMojang = clientMojang.chain(joinedTSrg).reverse();
-        srgToSMojang = serverMojang.chain(joinedTSrg).reverse();
+            logger.info("> client_mappings.txt");
+            clientMojang = load(cacheService.getClientMappings(config.version));
+            logger.info("> server_mappings.txt");
+            serverMojang = load(cacheService.getServerMappings(config.version));
 
-        processTSRG();
-        processMojangSide(srgToCMojang, MappingSide.CLIENT);
-        processMojangSide(srgToSMojang, MappingSide.SERVER);
+            logger.info("> srg -> mojang");
+            srgToCMojang = clientMojang.chain(joinedTSrg).reverse();
+            srgToSMojang = serverMojang.chain(joinedTSrg).reverse();
 
-        logger.info("Generating constructor parameters.");
-        //Generate constructor parameters.
-        for (MethodName ctorName : constructorMap.values()) {
-            String srgId = ctorName.getSrg();
-            if (StringUtils.isEmpty(srgId)) { continue; }
-            Type[] parameters = Type.getArgumentTypes(ctorName.getSrgDescriptor());
-            int idx = 0;
-            for (Type parameter : parameters) {
-                String ident = String.format("p_i%s_%s_", srgId, idx);
-                ParameterName existing = existingParameters.get(ident);
-                ParameterName pName;
-                if (existing != null) {
-                    pName = existing.fork();
-                    List<ParameterChange> pChanges = existingParameterChanges.get(existing)
-                            .stream()
-                            .map(e -> e.fork(pName))
-                            .collect(Collectors.toList());
-                    parameterChangeMap.put(pName, pChanges);
-                } else {
-                    pName = new ParameterName();
+            processTSRG();
+            processMojangSide(srgToCMojang, MappingSide.CLIENT);
+            processMojangSide(srgToSMojang, MappingSide.SERVER);
+
+            logger.info("Generating constructor parameters.");
+            //Generate constructor parameters.
+            for (MethodName ctorName : constructorMap.values()) {
+                String srgId = ctorName.getSrg();
+                if (StringUtils.isEmpty(srgId)) { continue; }
+                Type[] parameters = Type.getArgumentTypes(ctorName.getSrgDescriptor());
+                int idx = 0;
+                for (Type parameter : parameters) {
+                    String ident = String.format("p_i%s_%s_", srgId, idx);
+                    ParameterName existing = existingParameters.get(ident);
+                    ParameterName pName;
+                    if (existing != null) {
+                        pName = existing.fork();
+                        List<ParameterChange> pChanges = existingParameterChanges.get(existing)
+                                .stream()
+                                .map(e -> e.fork(pName))
+                                .collect(Collectors.toList());
+                        parameterChangeMap.put(pName, pChanges);
+                    } else {
+                        pName = new ParameterName();
+                    }
+                    pName.setMinecraftVersion(mcVersion);
+                    pName.setOwner(ctorName);
+                    pName.setSrg(ident);
+                    methodParameterMap.put(ident, pName);
+                    boolean wide = parameter.getSort() == Type.DOUBLE || parameter.getSort() == Type.LONG;
+                    idx += wide ? 2 : 1;//Account for wide vars
                 }
-                pName.setMinecraftVersion(mcVersion);
-                pName.setOwner(ctorName);
-                pName.setSrg(ident);
-                methodParameterMap.put(ident, pName);
-                boolean wide = parameter.getSort() == Type.DOUBLE || parameter.getSort() == Type.LONG;
-                idx += wide ? 2 : 1;//Account for wide vars
             }
+        } finally {
+            logger.detachAppender(appender);
         }
     }
 
@@ -260,7 +271,7 @@ public class MCPConfigImporter {
                     if (!fName.getMojang().equals(field.getMapped())) {
                         String s = clazz.getMapped() + "." + fName.getMojang();
                         String o = clazz.getMapped() + "." + field.getMapped();
-                        logger.warn("Mojang field name differs from client to server: {}: {}, {}: {}", side, o, side.opposite(), o);
+                        logger.warn("Mojang field name differs from client to server: {}: {}, {}: {}", side, s, side.opposite(), o);
                     }
                     continue;
                 }
@@ -323,6 +334,7 @@ public class MCPConfigImporter {
     public Map<MethodName, List<MethodChange>> getMethodChangeMap() { return methodChangeMap; }
     public Map<String, MethodName> getConstructorMap() { return constructorMap; }
     public Map<String, ParameterName> getMethodParameterMap() { return methodParameterMap; }
+    public Map<ParameterName, List<ParameterChange>> getParameterChangeMap() { return parameterChangeMap; }
     //@formatter:on
 
     private static IMappingFile load(Path path) throws IOException {

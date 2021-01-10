@@ -14,7 +14,7 @@ public class LockNameCommand extends BaseCommand {
     public LockNameCommand(DiscordService discord, MethodNameRepo methodRepo, FieldNameRepo fieldRepo, MinecraftVersionRepo versionRepo) {
         discord.registerCommand(literal("lock")
                 .requires(CommandSource::isAdmin)
-                .then(arguments("srg", discordUserArgument()).executes(ctx -> {
+                .then(argument("srg", discordUserArgument()).executes(ctx -> {
                     //TODO add locking
                     return 0;
                 })));
