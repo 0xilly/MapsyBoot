@@ -9,7 +9,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class AbstractCommand {
+public class BaseCommand {
 
     private static final Pattern USER_PATTERN = Pattern.compile("<@!?(\\d+)>");
 

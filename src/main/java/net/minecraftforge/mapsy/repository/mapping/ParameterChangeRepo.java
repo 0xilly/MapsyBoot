@@ -1,8 +1,11 @@
 package net.minecraftforge.mapsy.repository.mapping;
 
-import net.minecraftforge.mapsy.dao.*;
+import net.minecraftforge.mapsy.dao.ParameterChange;
+import net.minecraftforge.mapsy.dao.ParameterName;
+import net.minecraftforge.mapsy.dao.UserDAO;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -13,6 +16,8 @@ public interface ParameterChangeRepo extends CrudRepository<ParameterChange, Lon
     Stream<ParameterChange> findAllByUser(UserDAO user);
 
     Stream<ParameterChange> findAllByParameter(ParameterName parameter);
+
+    List<ParameterChange> getAllByParameter(ParameterName parameter);
 
     Stream<ParameterChange> findAllByUserAndParameter(UserDAO user, ParameterName parameter);
 

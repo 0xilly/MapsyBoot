@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.minecraftforge.mapsy.configuration.DiscordConfiguration;
 import net.minecraftforge.mapsy.service.UserService;
@@ -24,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.security.auth.login.LoginException;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -93,10 +93,7 @@ public class DiscordService {
         if (evt.getAuthor().isBot()) {
             return;
         }
-        if (!evt.getMessage().getAttachments().isEmpty()) {
-            return;
-        }
-        handleMessage(evt.getMessage(), evt.getAuthor(), evt.getChannel());
+        handleMessage(evt.getMessage(),evt.getAuthor(), evt.getMessage().getAttachments(), evt.getChannel());
     }
 
     @SubscribeEvent
@@ -104,17 +101,16 @@ public class DiscordService {
         if (evt.getAuthor().isBot()) {
             return;
         }
-        if (!evt.getMessage().getAttachments().isEmpty()) {
-            return;
-        }
-        handleMessage(evt.getMessage(), evt.getAuthor(), evt.getChannel());
+        handleMessage(evt.getMessage(),evt.getAuthor(), evt.getMessage().getAttachments(), evt.getChannel());
     }
 
-    private void handleMessage(Message message, User user, MessageChannel channel) {
+    private void handleMessage(Message message, User user, List<Message.Attachment> attachments, MessageChannel channel) {
         var source = new CommandSource()
                 .fromDiscordUser(user)
                 .fromUser(userService.getUserFromDiscord(user))
-                .in(channel);
+                .in(channel)
+                .insertAttachments(attachments);
+        if (message.getContentRaw().isEmpty()) return;
         var reader = new StringReader(message.getContentRaw());
         logger.info(reader.getString());
         if (reader.canRead()) {

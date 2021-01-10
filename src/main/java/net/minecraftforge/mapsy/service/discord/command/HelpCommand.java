@@ -11,7 +11,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Map;
 
 @Configuration
-public class HelpCommand extends AbstractCommand {
+public class HelpCommand extends BaseCommand {
 
     public HelpCommand(DiscordService discord) {
         discord.registerCommand(literal("help")

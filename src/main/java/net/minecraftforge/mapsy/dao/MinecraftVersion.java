@@ -1,14 +1,12 @@
 package net.minecraftforge.mapsy.dao;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Created by covers1624 on 14/12/20.
  */
 @Entity (name = "minecraft_version")
+@Table (uniqueConstraints = @UniqueConstraint (columnNames = { "name", "revision" }))
 public class MinecraftVersion {
 
     @Id
@@ -16,6 +14,10 @@ public class MinecraftVersion {
     private long id;
 
     private String name;
+
+    private int revision;
+
+    private boolean latest;
 
     public MinecraftVersion() {}
 
@@ -26,6 +28,10 @@ public class MinecraftVersion {
     //@formatter:off
     public long getId() { return id; }
     public String getName() { return name; }
+    public int getRevision() { return revision; }
+    public boolean isLatest() { return latest; }
     public void setName(String name) { this.name = name; }
+    public void setRevision(int revision) { this.revision = revision; }
+    public void setLatest(boolean latest) { this.latest = latest; }
     //@formatter:on
 }

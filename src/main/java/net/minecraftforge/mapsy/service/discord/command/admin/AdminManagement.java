@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.minecraftforge.mapsy.dao.UserDAO;
 import net.minecraftforge.mapsy.service.UserService;
 import net.minecraftforge.mapsy.service.discord.DiscordService;
-import net.minecraftforge.mapsy.service.discord.command.AbstractCommand;
+import net.minecraftforge.mapsy.service.discord.command.BaseCommand;
 import net.minecraftforge.mapsy.service.discord.command.CommandSource;
 import net.minecraftforge.mapsy.util.UserRole;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * Created by covers1624 on 16/12/20.
  */
 @Configuration
-public class AdminManagement extends AbstractCommand {
+public class AdminManagement extends BaseCommand {
 
     public AdminManagement(DiscordService discord, UserService userService) {
         discord.registerCommand(literal("promote")

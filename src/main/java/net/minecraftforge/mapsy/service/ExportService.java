@@ -107,7 +107,7 @@ public class ExportService {
     public void exportParameters(ICSVWriter writer, MinecraftVersion version) {
         String[] line = new String[4];
         writer.writeNext(new String[] { "param", "name", "side" }, false);
-        try (Stream<ParameterName> stream = parameterRepo.getAllByMinecraftVersion(version)) {
+        try (Stream<ParameterName> stream = parameterRepo.findAllByMinecraftVersion(version)) {
             stream.forEach(e -> {
                 if (e.getMcp() != null) {
                     line[0] = e.getSrg();

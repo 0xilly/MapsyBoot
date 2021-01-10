@@ -39,7 +39,17 @@ public class MethodChange {
     public void setUser(UserDAO user) { this.user = user; }
     public void setMethod(MethodName method) { this.method = method; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
-    public void setOldName(String from) { this.oldName = from; }
-    public void setNewName(String to) { this.newName = to; }
+    public void setOldName(String from) { oldName = from; }
+    public void setNewName(String to) { newName = to; }
     //@formatter:on
+
+    public MethodChange fork(MethodName newMethod) {
+        MethodChange mChange = new MethodChange();
+        mChange.setUser(getUser());
+        mChange.setMethod(newMethod);
+        mChange.setTimestamp(getTimestamp());
+        mChange.setOldName(getOldName());
+        mChange.setNewName(getNewName());
+        return mChange;
+    }
 }

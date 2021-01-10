@@ -42,4 +42,13 @@ public class ClassName {
     public void setSrg(String srg) { this.srg = srg; }
     public void setSide(MappingSide side) { this.side = side; }
     //@formatter:on
+
+    public ClassName fork() {
+        ClassName cName = new ClassName();
+        cName.setObf(getObf());
+        cName.setMojang(getMojang());
+        cName.setSrg(getSrg());
+        //Let side be re-computed on fork.
+        return cName;
+    }
 }
