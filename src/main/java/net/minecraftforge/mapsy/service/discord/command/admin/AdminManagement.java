@@ -7,6 +7,7 @@ import net.minecraftforge.mapsy.service.discord.DiscordService;
 import net.minecraftforge.mapsy.service.discord.command.BaseCommand;
 import net.minecraftforge.mapsy.service.discord.command.CommandSource;
 import net.minecraftforge.mapsy.util.UserRole;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -15,7 +16,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AdminManagement extends BaseCommand {
 
-    public AdminManagement(DiscordService discord, UserService userService) {
+    private final UserService userService;
+
+    public AdminManagement(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    public void register(DiscordService discord) {
         discord.registerCommand(literal("promote")
                 .requires(CommandSource::isAdmin)
                 .then(arguments("user", discordUserArgument())
@@ -112,5 +120,4 @@ public class AdminManagement extends BaseCommand {
                 )
         );
     }
-
 }

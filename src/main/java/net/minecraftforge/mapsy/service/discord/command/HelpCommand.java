@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.CommandNode;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.minecraftforge.mapsy.service.discord.DiscordService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
 
@@ -13,7 +14,11 @@ import java.util.Map;
 @Configuration
 public class HelpCommand extends BaseCommand {
 
-    public HelpCommand(DiscordService discord) {
+    public HelpCommand() {
+    }
+
+    @Autowired
+    public void register(DiscordService discord) {
         discord.registerCommand(literal("help")
                 .executes(src -> {
                     var dispatcher = discord.getCommandDispatcher();
