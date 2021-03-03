@@ -11,15 +11,9 @@ sourceCompatibility = '14'
 repositories {
     mavenCentral()
     jcenter()
-    maven {
-        name = 'Forge Maven'
-        url = 'http://files.minecraftforge.net/maven'
-    }
-    maven {
-        name = 'Mojang Maven'
-        url = 'https://libraries.minecraft.net'
-    }
-
+    maven {url 'https://files.minecraftforge.net/maven/'}
+    maven {url 'https://libraries.minecraft.net/'}
+    maven {url 'https://maven.covers1624.net/'}
 }
 
 dependencies {
@@ -35,6 +29,7 @@ dependencies {
     implementation 'org.apache.maven:maven-artifact:3.6.3'
     implementation 'org.apache.httpcomponents:httpclient:4.5.7'
     implementation 'com.opencsv:opencsv:5.0'
+    implementation 'net.covers1624:Quack:0.1.1.+'
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 

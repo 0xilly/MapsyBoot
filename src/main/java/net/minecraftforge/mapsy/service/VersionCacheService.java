@@ -1,7 +1,7 @@
 package net.minecraftforge.mapsy.service;
 
+import net.covers1624.quack.net.download.DownloadAction;
 import net.minecraftforge.mapsy.util.Utils;
-import net.minecraftforge.mapsy.util.download.DownloadAction;
 import net.minecraftforge.mapsy.util.minecraft.VersionInfoJson;
 import net.minecraftforge.mapsy.util.minecraft.VersionManifestJson;
 import org.springframework.stereotype.Service;

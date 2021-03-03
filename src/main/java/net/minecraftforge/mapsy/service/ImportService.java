@@ -1,16 +1,14 @@
 package net.minecraftforge.mapsy.service;
 
 import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
-import ch.qos.logback.core.Context;
-import ch.qos.logback.core.OutputStreamAppender;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import net.covers1624.quack.util.SneakyUtils;
 import net.minecraftforge.mapsy.dao.*;
 import net.minecraftforge.mapsy.repository.mapping.*;
+import net.minecraftforge.mapsy.util.LoggerCapture;
 import net.minecraftforge.mapsy.util.Utils;
 import net.minecraftforge.mapsy.util.mcp.MCPConfig;
 import net.minecraftforge.mapsy.util.mcp.MCPConfigImporter;
@@ -18,15 +16,20 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static java.util.function.Function.identity;
 
 /**
  * Created by covers1624 on 18/12/20.
@@ -79,25 +82,7 @@ public class ImportService {
     }
 
     @Transactional
-    public ImportReport importMCPConfig(InputStream mcpConfig, Optional<MinecraftVersion> forkFrom) throws IOException {
-        Context ctx = ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext();
-        ByteArrayOutputStream logCapture = new ByteArrayOutputStream();
-        OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<>();
-        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-        {
-            encoder.setPattern("[%d{HH:mm:ss.SSS}] [%thread/%level]: %msg%n");
-            encoder.setCharset(StandardCharsets.UTF_8);
-            encoder.setContext(ctx);
-            encoder.start();
-
-            appender.setName("logcapture");
-            appender.setContext(ctx);
-            appender.setEncoder(encoder);
-            appender.setOutputStream(logCapture);
-            appender.start();
-        }
-        logger.addAppender(appender);
-
+    public ImportReport importMCPConfig(InputStream mcpConfig, Optional<MinecraftVersion> forkFrom) {
         ImportReport report = new ImportReport();
 
         try {
@@ -119,20 +104,23 @@ public class ImportService {
             }
             versionRepo.save(mcVersion);
 
+            report.version = mcVersion;
+            report.forkedFrom = forkFrom.orElse(null);
+
             logger.info("Loading existing mappings..");
             logger.info("Loading existing classes..");
             Map<String, ClassName> existingClasses = forkFrom
                     .map(mc -> classNameRepo.findAllByMinecraftVersion(mc).parallel()
-                            .collect(Collectors.toMap(ClassName::getSrg, Function.identity())))
+                            .collect(Collectors.toMap(ClassName::getSrg, identity())))
                     .orElse(Collections.emptyMap());
             logger.info("Loading existing fields..");
             Map<String, FieldName> existingFields = forkFrom
                     .map(mc -> fieldNameRepo.findAllByMinecraftVersion(mc).parallel()
-                            .collect(Collectors.toMap(FieldName::getSrg, Function.identity())))
+                            .collect(Collectors.toMap(FieldName::getSrg, identity())))
                     .orElse(Collections.emptyMap());
             logger.info("Loading existing fieldChanges..");
             Map<FieldName, List<FieldChange>> existingFieldChanges = existingFields.values().stream()
-                    .collect(Collectors.toMap(Function.identity(), e -> new ArrayList<>()));
+                    .collect(Collectors.toMap(identity(), e -> new ArrayList<>()));
             forkFrom.ifPresent(v -> fieldChangeRepo.findAllByMinecraftVersion(v)
                     .forEach(e -> existingFieldChanges.computeIfAbsent(e.getField(), e2 -> new ArrayList<>())
                             .add(e)));
@@ -141,11 +129,11 @@ public class ImportService {
             Map<String, MethodName> existingMethods = forkFrom
                     .map(mc -> methodNameRepo.findAllByMinecraftVersion(mc).parallel()
                             .filter(e -> !e.isConstructor())
-                            .collect(Collectors.toMap(MethodName::getSrg, Function.identity())))
+                            .collect(Collectors.toMap(MethodName::getSrg, identity())))
                     .orElse(Collections.emptyMap());
             logger.info("Loading existing method changes..");
             Map<MethodName, List<MethodChange>> existingMethodChanges = existingMethods.values().stream()
-                    .collect(Collectors.toMap(Function.identity(), e -> new ArrayList<>()));
+                    .collect(Collectors.toMap(identity(), e -> new ArrayList<>()));
             forkFrom.ifPresent(v -> methodChangeRepo.findAllByMinecraftVersion(v)
                     .forEach(e -> existingMethodChanges.computeIfAbsent(e.getMethod(), e2 -> new ArrayList<>())
                             .add(e)));
@@ -153,12 +141,12 @@ public class ImportService {
             logger.info("Loading existing parameters..");
             Map<String, ParameterName> existingParameters = forkFrom
                     .map(mc -> parameterNameRepo.findAllByMinecraftVersion(mc).parallel()
-                            .collect(Collectors.toMap(ParameterName::getSrg, Function.identity())))
+                            .collect(Collectors.toMap(ParameterName::getSrg, identity())))
                     .orElse(Collections.emptyMap());
 
             logger.info("Loading existing parameter changes..");
             Map<ParameterName, List<ParameterChange>> existingParameterChanges = existingParameters.values().stream()
-                    .collect(Collectors.toMap(Function.identity(), e -> new ArrayList<>()));
+                    .collect(Collectors.toMap(identity(), e -> new ArrayList<>()));
             forkFrom.ifPresent(v -> parameterChangeRepo.findAllByMinecraftVersion(v)
                     .forEach(e -> existingParameterChanges.computeIfAbsent(e.getParameter(), e2 -> new ArrayList<>())
                             .add(e)));
@@ -176,7 +164,7 @@ public class ImportService {
                     existingParameterChanges
             );
 
-            importer.process(appender);
+            importer.process();
 
             insert("classes", classNameRepo, importer.getClassMap());
             insert("fields", fieldNameRepo, importer.getFieldMap());
@@ -199,12 +187,8 @@ public class ImportService {
             report.importedMethodParameterChanges = importer.getParameterChangeMap().values().stream().mapToInt(List::size).sum();
         } catch (Throwable e) {
             logger.error("Error occurred whilst importing.", e);
-        } finally {
-            logger.detachAppender(appender);
-            appender.stop();
-            encoder.stop();
+            report.failure = true;
         }
-        report.log = logCapture.toByteArray();
         return report;
     }
 
@@ -219,44 +203,59 @@ public class ImportService {
         repo.saveAll(flatThings);
     }
 
-    public void importMCPSnapshot(InputStream snapshot, MinecraftVersion mcVersion) throws IOException {
-        Map<String, byte[]> files = Utils.loadZip(snapshot);
-        logger.info("Importing methods.");
-        parseCSV(new ByteArrayInputStream(files.get("methods.csv")), line -> {
-            Optional<MethodName> methodOpt = methodNameRepo.findBySrgAndMinecraftVersion(line[0], mcVersion);
-            if (methodOpt.isEmpty()) {
-                logger.warn("SRG {} not found for {}, ignoring..", line[0], mcVersion.getName());
-                return;
+    @Transactional
+    public void importMCPSnapshot(InputStream snapshot, MinecraftVersion mcVersion) {
+        try {
+            Map<String, byte[]> files = Utils.loadZip(snapshot);
+            logger.info("Importing methods.");
+            try (Stream<String[]> stream = streamCSV(new ByteArrayInputStream(files.get("methods.csv")))) {
+                Map<String, MethodName> methods = methodNameRepo.findAllByMinecraftVersion(mcVersion)
+                        .filter(e -> !e.isConstructor())
+                        .collect(Collectors.toMap(MethodName::getSrg, identity()));
+                stream.forEach(line -> {
+                    MethodName method = methods.get(line[0]);
+                    if (method == null) {
+                        logger.warn("SRG {} not found for {}, ignoring..", line[0], mcVersion.getName());
+                        return;
+                    }
+                    method.setMcp(line[1]);
+                    method.setDescription(line[3]);
+                    methodNameRepo.save(method);
+                });
             }
-            MethodName method = methodOpt.get();
-            method.setMcp(line[1]);
-            method.setDescription(line[3]);
-            methodNameRepo.save(method);
-        });
-        logger.info("Importing fields.");
-        parseCSV(new ByteArrayInputStream(files.get("fields.csv")), line -> {
-            Optional<FieldName> methodOpt = fieldNameRepo.findBySrgAndMinecraftVersion(line[0], mcVersion);
-            if (methodOpt.isEmpty()) {
-                logger.warn("SRG {} not found for {}, ignoring..", line[0], mcVersion.getName());
-                return;
+            logger.info("Importing fields.");
+            try (Stream<String[]> stream = streamCSV(new ByteArrayInputStream(files.get("fields.csv")))) {
+                Map<String, FieldName> fields = fieldNameRepo.findAllByMinecraftVersion(mcVersion)
+                        .collect(Collectors.toMap(FieldName::getSrg, identity()));
+                stream.forEach(line -> {
+                    FieldName field = fields.get(line[0]);
+                    if (field == null) {
+                        logger.warn("SRG {} not found for {}, ignoring..", line[0], mcVersion.getName());
+                        return;
+                    }
+                    field.setMcp(line[1]);
+                    field.setDescription(line[3]);
+                    fieldNameRepo.save(field);
+                });
             }
-            FieldName field = methodOpt.get();
-            field.setMcp(line[1]);
-            field.setDescription(line[3]);
-            fieldNameRepo.save(field);
-        });
-        logger.info("Importing parameters.");
-        parseCSV(new ByteArrayInputStream(files.get("params.csv")), line -> {
-            Optional<ParameterName> methodOpt = parameterNameRepo.findBySrgAndMinecraftVersion(line[0], mcVersion);
-            if (methodOpt.isEmpty()) {
-                logger.warn("SRG {} not found for {}, ignoring..", line[0], mcVersion.getName());
-                return;
+            logger.info("Importing parameters.");
+            try (Stream<String[]> stream = streamCSV(new ByteArrayInputStream(files.get("params.csv")))) {
+                Map<String, ParameterName> fields = parameterNameRepo.findAllByMinecraftVersion(mcVersion)
+                        .collect(Collectors.toMap(ParameterName::getSrg, identity()));
+                stream.forEach(line -> {
+                    ParameterName param = fields.get(line[0]);
+                    if (param == null) {
+                        logger.warn("SRG {} not found for {}, ignoring..", line[0], mcVersion.getName());
+                        return;
+                    }
+                    param.setMcp(line[1]);
+                    parameterNameRepo.save(param);
+                });
             }
-            ParameterName param = methodOpt.get();
-            param.setMcp(line[1]);
-            parameterNameRepo.save(param);
-        });
-        logger.info("Done.");
+            logger.info("Done.");
+        } catch (Throwable e) {
+            logger.error("Error occurred whilst importing.", e);
+        }
     }
 
     private static void parseCSV(InputStream is, Consumer<String[]> processor) throws IOException {
@@ -265,7 +264,20 @@ public class ImportService {
         }
     }
 
+    private static Stream<String[]> streamCSV(InputStream is) {
+        CSVReader reader = new CSVReaderBuilder(new InputStreamReader(is))
+                .withSkipLines(1)
+                .build();
+        return StreamSupport.stream(reader.spliterator(), false)
+                .onClose(SneakyUtils.sneak(reader::close));
+    }
+
     public static class ImportReport {
+
+        public boolean failure;
+
+        public MinecraftVersion version;
+        public MinecraftVersion forkedFrom;
 
         public int importedClasses;
         public int importedFields;
@@ -275,7 +287,5 @@ public class ImportService {
         public int importedConstructors;
         public int importedMethodParameters;
         public int importedMethodParameterChanges;
-
-        public byte[] log;
     }
 }
